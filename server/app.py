@@ -43,11 +43,18 @@ class LLM:
         self.llm =  llm#ChatOpenAI(temperature = tempereature)
         
 
+    # remove special characters from the code
+    def sanitize_code(self,code):
+        code = re.sub(r'[^\w\s]','',code)
+        return code
+
+
     def generate_psudo_code(self,code):
         prompt = PromptTemplate(template= GENERATE_PSUDO_CODE, input_variables= ["code"])
         sys = SystemMessagePromptTemplate(prompt=prompt)
         message = [sys.format(code=code)]
         reply = self.llm.invoke(input=message).dict()['content']
+        reply = self.extract_code(reply)
         return reply
     
     def extract_code(self,gpt_response):
