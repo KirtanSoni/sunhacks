@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
 import Chart from './Chart'
+import CodeMirror from '@uiw/react-codemirror';
+import { javascript } from '@codemirror/lang-javascript';
+import { dracula } from '@uiw/codemirror-theme-dracula';
 
 
 export default function App() {
@@ -12,7 +15,6 @@ export default function App() {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
   }
-
   
   const appStyle = {
     backgroundColor: darkMode ? '#1a1a1a' : '#ffffff',
@@ -40,7 +42,7 @@ export default function App() {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://localhost:8000/generate', {
+      const response = await fetch('http://localhost:8080/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,12 +70,13 @@ export default function App() {
           </button>
       </div>
       <div style={{ marginBottom: '20px' }}>
-        <textarea
-          value={sourceCode}
-          onChange={(e) => setSourceCode(e.target.value)}
-          placeholder="Paste your code here..."
-          style={{ width: '100%', height: '200px', padding: '10px' }}
-        />
+        <CodeMirror
+            value={sourceCode}
+            height="200px"
+            theme={darkMode ? dracula : 'light'}
+            extensions={[javascript({ jsx: true })]}
+            onChange={(value) => setSourceCode(value)}
+          />
       </div>
       <button 
         onClick={handleSubmit} 

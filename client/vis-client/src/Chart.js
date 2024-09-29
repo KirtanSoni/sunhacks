@@ -51,7 +51,7 @@ export default function Chart({ chartCode, darkMode}) {
     <img 
       src={svgSource} 
       alt="Mermaid Chart" 
-      style={{ maxWidth: '50%', height: 'auto', filter: darkMode ? 'invert(1) hue-rotate(180deg)' : 'none' }} 
+      style={{ maxWidth: '75%', height: 'auto', filter: darkMode ? 'invert(1) hue-rotate(180deg)' : 'none' }} 
     />
   ) : null
 }
