@@ -50,12 +50,25 @@ export default function App() {
     transition: 'background-color 0.3s ease',
   };
 
-  const handleSubmit = () => {
-    setIsLoading(true)
-    setTimeout(() => {
-      setMermaidCode(sampleMermaid)
-      setIsLoading(false)
-    }, 10)
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('https://zhqs8d3n-8080.usw3.devtunnels.ms/generate_mermaid_chart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+         body: JSON.stringify({ 'code': sourceCode, 'daiagram': 'flowchart' }),
+      });
+      const data = await response.json();
+      console.log(data.code.slice(10, -4))
+      setMermaidCode(data.code.slice(10, -4));
+    } catch (error) {
+      console.error('Error:', error);
+      // Handle error (e.g., show an error message to the user)
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
