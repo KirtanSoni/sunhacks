@@ -71,60 +71,50 @@ class LLM:
         return code
     
 
-llm = LLM()
-code = """def hello_world():
-    print('Hello World')"""
 
-psuedo = llm.generate_psudo_code(code)
-print(psuedo)
-daiagram = 'flowchart'
-response = llm.generate_mermaid_chart(psuedo,daiagram)
-print(response)
+app = flask.Flask(__name__)
+CORS(app)
 
 
-# app = flask.Flask(__name__)
-# CORS(app)
+@app.route('/')
+def index():
+    json = {
+        'code': """flowchart TD
+    Start --> HelloWorld[Hello World]
+    HelloWorld --> Finish""" 
+    }
+    return json
 
+# generate_mermaid_chart
+@app.route('/generated_direct', methods=['POST'])
+def generate_mermaid_chart():
+    data = flask.request.json
+    code = data['code']
+    daiagram = data['daiagram']
+    llm = LLM()
+    response = llm.generate_mermaid_chart(code,daiagram)
+    json = {
+        'code': response
+    }
+    return json
 
-# @app.route('/')
-# def index():
-#     json = {
-#         'code': """flowchart TD
-#     Start --> HelloWorld[Hello World]
-#     HelloWorld --> Finish""" 
-#     }
-#     return json
+@app.route('/generate', methods=['POST'])
+def generate():
+    data = flask.request.json
+    code = data['code']
+    diagram = data['diagram']
 
-# # generate_mermaid_chart
-# @app.route('/generated_direct', methods=['POST'])
-# def generate_mermaid_chart():
-#     data = flask.request.json
-#     code = data['code']
-#     daiagram = data['daiagram']
-#     llm = LLM()
-#     response = llm.generate_mermaid_chart(code,daiagram)
-#     json = {
-#         'code': response
-#     }
-#     return json
+    llm = LLM()
+    psuedo = llm.generate_psudo_code(code)
+    response = llm.generate_mermaid_chart(psuedo,diagram)
+    json = {
+        'code': response
+    }
+    return json
 
-# @app.route('/generate', methods=['POST'])
-# def generate():
-#     data = flask.request.json
-#     code = data['code']
-#     diagram = data['diagram']
-
-#     llm = LLM()
-#     psuedo = llm.generate_psudo_code(code)
-#     response = llm.generate_mermaid_chart(psuedo,diagram)
-#     json = {
-#         'code': response
-#     }
-#     return json
-
-# # run in development mode with reloader
-# if __name__ == '__main__':
-#     app.run(debug=True)
+# run in development mode with reloader
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
 
