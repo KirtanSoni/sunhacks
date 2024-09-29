@@ -1,36 +1,18 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts.prompt import PromptTemplate
 from langchain_core.prompts.chat import SystemMessagePromptTemplate
-from langchain_core.output_parsers import StrOutputParser
 import flask
 from flask_cors import CORS
 from dotenv import load_dotenv
 import re
-import os
 
 GENERATE_PSUDO_CODE="""
-You are a software engineer and you have to write psuedocode for a given code 
-1.	Understand the Code: Review the code logic thoroughly to identify key processes, decisions, and loops.
-2.	Identify Components:Break the code down into key sections like:
-    a. Start/End points.
-    b. Process steps (actions or tasks).
-    c. Decision points (conditional branches).
-    d. Loops (repeating processes).
-    e. Inputs/Outputs (data flowing in and out).
-    f. for the following code :
-    Make sure there are no special characters in the code.
+You are a software engineer and you have to write psuedocode for a given code to caputre the logic of the code. Write a psuedocode for the code: \n\n
     {code}
     """
 GENERATE_MERMAID_CHART="""
-You are a software engineer and you have to write a mermaid script with correct mermaid syntax. Keep in mind to
-Define Symbols:
-Standard symbols:
-	a. Oval: Start/End.
-	b. Rectangle: Process/Action.
-	c. Diamond: Decision/Condition.
-	d. Arrow: Flow direction.
-	e. Parallelogram: Input/Output.
-Generate/Draw the Diagram: output mermaid code to draw a {daigram} of the code: \n\n{code}
+You are a software engineer and you have to write a mermaid script with correct mermaid syntax. Keep in mind NOT to use '(' ')' or '{{' '}}' write name notations in the diagram. use subgraphs where necessary.
+Generate/Draw the Diagram: output mermaid code to draw a {diagram} of the code: \n\n{code}
 """
 
 
@@ -42,12 +24,22 @@ class LLM:
     def __init__(self,llm = ChatOpenAI()):
         self.llm =  llm#ChatOpenAI(temperature = tempereature)
         
+    def log(self,message):
+        open("logs/log.txt","a").write("\n" + message + "\n")
+
+    # remove special characters from the code
+    def sanitize_code(self,code):
+        code = re.sub(r'[^\w\s]','',code)
+        return code
+
 
     def generate_psudo_code(self,code):
         prompt = PromptTemplate(template= GENERATE_PSUDO_CODE, input_variables= ["code"])
         sys = SystemMessagePromptTemplate(prompt=prompt)
         message = [sys.format(code=code)]
         reply = self.llm.invoke(input=message).dict()['content']
+        reply = self.sanitize_code(reply)
+        self.log(reply)
         return reply
     
     def extract_code(self,gpt_response):
@@ -55,12 +47,26 @@ class LLM:
         mermaid_code = re.findall(pattern,gpt_response)[0]
         return mermaid_code[10:-4]
     
-    def generate_mermaid_chart(self,code,daiagram):
-        prompt = PromptTemplate(template= GENERATE_MERMAID_CHART, input_variables= ["code", "daigram"])
+    def generate_mermaid_chart(self,code,diagram):
+        prompt = PromptTemplate(template= GENERATE_MERMAID_CHART, input_variables= ["code", "diagram"])
         sys = SystemMessagePromptTemplate(prompt=prompt)
-        message = [sys.format(code=code, daigram=daiagram)]
+        message = [sys.format(code=code, diagram=diagram)]
         reply = self.llm.invoke(input=message).dict()['content']
         code = self.extract_code(reply)
+        self.log(code)
+
+        # fix the mermaid code
+        # code = self.fix_mermaid_code(code)
+
+        return code
+    
+    def fix_mermaid_code(self,code):
+        prompt = PromptTemplate(template= "Fix the mermaid code write in box notations as plain alpha numeric words in all caps. \n\n output code  : \n\n{code}", input_variables= ["code"])
+        sys = SystemMessagePromptTemplate(prompt=prompt)
+        message = [sys.format(code=code)]
+        reply = self.llm.invoke(input=message).dict()['content']
+        code = self.extract_code(reply)
+
         return code
     
 
@@ -83,9 +89,9 @@ def index():
 def generate_mermaid_chart():
     data = flask.request.json
     code = data['code']
-    daiagram = data['daiagram']
+    diagram = data['diagram']
     llm = LLM()
-    response = llm.generate_mermaid_chart(code,daiagram)
+    response = llm.generate_mermaid_chart(code,diagram)
     json = {
         'code': response
     }
