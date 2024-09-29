@@ -6,15 +6,13 @@ import { dracula } from '@uiw/codemirror-theme-dracula';
 import headImg from "./assets/Head.png"
 import AppHeader from './AppHeader';
 
-
 export default function App() {
   const [sourceCode, setSourceCode] = useState('')
   const [mermaidCode, setMermaidCode] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
-  console.log(headImg)
-  
-  
+  const [chartType, setChartType] = useState('flowchart')
+
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
   }
@@ -42,6 +40,16 @@ export default function App() {
     transition: 'background-color 0.3s ease',
   };
 
+  const selectStyle = {
+    padding: '10px',
+    marginBottom: '10px',
+    backgroundColor: darkMode ? '#333' : '#fff',
+    color: darkMode ? '#fff' : '#000',
+    border: `1px solid ${darkMode ? '#555' : '#ccc'}`,
+    borderRadius: '5px',
+    fontSize: '1em',
+  };
+
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
@@ -50,7 +58,10 @@ export default function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-         body: JSON.stringify({ 'code': sourceCode, 'diagram': 'flowchart topdown' }),
+         body: JSON.stringify({ 
+           'code': sourceCode, 
+           'diagram': chartType === 'flowchart' ? 'flowchart topdown' : chartType
+         }),
       });
       const data = await response.json();
       console.log(data.code)
@@ -65,34 +76,45 @@ export default function App() {
   return (
     <div style={appStyle}>
       <div style={containerStyle}>
-      <AppHeader 
-        headImg={headImg}
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-      />
-      <div style={{ marginBottom: '20px' }}>
-        <CodeMirror
+        <AppHeader 
+          headImg={headImg}
+          darkMode={darkMode}
+          toggleDarkMode={toggleDarkMode}
+        />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+          <select 
+            value={chartType} 
+            onChange={(e) => setChartType(e.target.value)}
+            style={selectStyle}
+          >
+            <option value="flowchart">Flow Chart</option>
+            <option value="sequenceDiagram">Sequence Diagram</option>
+            <option value="classDiagram">Class Diagram</option>
+          </select>
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <CodeMirror
             value={sourceCode}
             height="200px"
             theme={darkMode ? dracula : 'light'}
             extensions={[javascript({ jsx: true })]}
             onChange={(value) => setSourceCode(value)}
           />
-      </div>
-      <button 
-        onClick={handleSubmit} 
-        disabled={isLoading}
-        style={{...buttonStyle, fontSize: '1em'}}
-      >
-        {isLoading ? 'Converting...' : 'Convert to Mermaid'}
-      </button>
-      {mermaidCode && (
-        <div style={{ marginTop: '20px' }}>
-          <div className="mermaid">
-            <Chart chartCode={mermaidCode} darkMode={darkMode}/>
-          </div>
         </div>
-      )}
+        <button 
+          onClick={handleSubmit} 
+          disabled={isLoading}
+          style={{...buttonStyle, fontSize: '1em'}}
+        >
+          {isLoading ? 'Converting...' : 'Convert to Mermaid'}
+        </button>
+        {mermaidCode && (
+          <div style={{ marginTop: '20px' }}>
+            <div className="mermaid">
+              <Chart chartCode={mermaidCode} darkMode={darkMode}/>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
