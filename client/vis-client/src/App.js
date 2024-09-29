@@ -47,11 +47,11 @@ export default function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-         body: JSON.stringify({ 'code': sourceCode, 'diagram': 'flowchart' }),
+         body: JSON.stringify({ 'code': sourceCode, 'diagram': 'flowchart topdown' }),
       });
       const data = await response.json();
-      console.log(data.code.slice(10, -4))
-      setMermaidCode(data.code.slice(10, -4));
+      console.log(data.code)
+      setMermaidCode(data.code);
     } catch (error) {
       console.error('Error:', error);
       // Handle error (e.g., show an error message to the user)
