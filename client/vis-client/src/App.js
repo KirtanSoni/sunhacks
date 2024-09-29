@@ -2,19 +2,6 @@ import React, { useState } from 'react'
 import Chart from './Chart'
 
 
-const sampleMermaid = `
-sequenceDiagram
-    participant Alice
-    participant Bob
-    Alice->>John: Hello John, how are you?
-    loop Healthcheck
-        John->>John: Fight against hypochondria
-    end
-    Note right of John: Rational thoughts prevail!
-    John-->>Alice: Great!
-    John->>Bob: How about you?
-    Bob-->>John: Jolly good!`
-
 export default function App() {
   const [sourceCode, setSourceCode] = useState('')
   const [mermaidCode, setMermaidCode] = useState('')
@@ -53,12 +40,12 @@ export default function App() {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://zhqs8d3n-8080.usw3.devtunnels.ms/generate_mermaid_chart', {
+      const response = await fetch('https://localhost:8000/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-         body: JSON.stringify({ 'code': sourceCode, 'daiagram': 'flowchart' }),
+         body: JSON.stringify({ 'code': sourceCode, 'diagram': 'flowchart' }),
       });
       const data = await response.json();
       console.log(data.code.slice(10, -4))
@@ -77,7 +64,7 @@ export default function App() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}> 
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>CodeVis: Code to Mermaid Chart</h1>
         <button onClick={toggleDarkMode} style={{ ...buttonStyle, padding: '5px 10px' }}>
-            {darkMode ? '☀️ Light' : '🌙 Dark'}
+            {darkMode ? '☀️' : '🌙'}
           </button>
       </div>
       <div style={{ marginBottom: '20px' }}>

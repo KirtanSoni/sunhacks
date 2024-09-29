@@ -1,2 +1,4 @@
 server/venv
 server/__pycache__
+client/node_modules
+client/vis-client/node_modules

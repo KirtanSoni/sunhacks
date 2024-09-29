@@ -2,6 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts.prompt import PromptTemplate
 from langchain_core.prompts.chat import SystemMessagePromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from flask_cors import CORS
 import flask
 from dotenv import load_dotenv
 
@@ -44,7 +45,7 @@ class LLM:
 
 
 app = flask.Flask(__name__)
-
+CORS(app)
 @app.route('/')
 def index():
     json = {
