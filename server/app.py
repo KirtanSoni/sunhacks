@@ -7,15 +7,19 @@ from dotenv import load_dotenv
 import re
 
 GENERATE_PSUDO_CODE="""
-You are a software engineer and you have to write psuedocode for a given code to caputre the logic of the code. Write a psuedocode for the code: \n\n
-    {code}
+You are a software engineer and must write pseudo code for a given source file. Write sentences to explain the flows of the code. to help the next developer make graphs and flowcharts on the code. if relevant, try to talk about this code in packages such as data base layer, routining layers, auth layers, front end layers, api layers.
+if the code is an algorithm, talk about the flow, but also name the variables with their relevant responsibilities.\n\n Code: \n
+{code}
     """
 GENERATE_MERMAID_CHART="""
-You are a software engineer and you have to write a mermaid script with correct mermaid syntax. Keep in mind NOT to use '(' ')' or '{{' '}}' write name notations in the diagram. use subgraphs where necessary.
-Generate/Draw the Diagram: output mermaid code to draw a {diagram} of the code: \n\n{code}
+You are a programmer whose task is to create meaningful {diagram} charts using the information given to you in mermaid syntax. write the mermaid code (use subgraphs where necessary) for the following pseudocode: 
+keep the graph detailed, Node names should be enclosed in delimiters!  if the subgraphs have too  many nodes , Let the whole graph be from left to right. \n\n Pseudo Code: \n
+{code}
 """
 
+FIX_MERMAID_CODE="""
 
+"""
 
 load_dotenv()
 # openai.api_key = os.getenv('OPENAI_KEY')
@@ -31,7 +35,6 @@ class LLM:
     def sanitize_code(self,code):
         code = re.sub(r'[^\w\s]','',code)
         return code
-
 
     def generate_psudo_code(self,code):
         prompt = PromptTemplate(template= GENERATE_PSUDO_CODE, input_variables= ["code"])
@@ -50,23 +53,20 @@ class LLM:
     def generate_mermaid_chart(self,code,diagram):
         prompt = PromptTemplate(template= GENERATE_MERMAID_CHART, input_variables= ["code", "diagram"])
         sys = SystemMessagePromptTemplate(prompt=prompt)
-        message = [sys.format(code=code, diagram=diagram)]
-        reply = self.llm.invoke(input=message).dict()['content']
+        self.message = [sys.format(code=code, diagram=diagram)]
+        reply = self.llm.invoke(input=self.message).dict()['content']
         code = self.extract_code(reply)
         self.log(code)
-
-        # fix the mermaid code
-        # code = self.fix_mermaid_code(code)
-
+        code = self.mermaid_error(code,messages=self.message)
+        self.log(code)
         return code
     
-    def fix_mermaid_code(self,code):
-        prompt = PromptTemplate(template= "Fix the mermaid code write in box notations as plain alpha numeric words in all caps. \n\n output code  : \n\n{code}", input_variables= ["code"])
+    def mermaid_error(self,code,messages):
+        prompt = PromptTemplate(template= "Fix the mermaid code n\n{code}", input_variables= ["code"])
         sys = SystemMessagePromptTemplate(prompt=prompt)
-        message = [sys.format(code=code)]
+        message = [sys.format(code=code)]+messages
         reply = self.llm.invoke(input=message).dict()['content']
         code = self.extract_code(reply)
-
         return code
     
 
@@ -110,6 +110,8 @@ def generate():
         'code': response
     }
     return json
+
+
 
 # run in development mode with reloader
 if __name__ == '__main__':
