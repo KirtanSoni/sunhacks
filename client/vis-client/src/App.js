@@ -74,7 +74,7 @@ export default function App() {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/generate', {
+      const response = await fetch('https://sunhacks-production.up.railway.app/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
