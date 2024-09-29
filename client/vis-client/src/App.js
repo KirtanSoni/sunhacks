@@ -3,6 +3,8 @@ import Chart from './Chart'
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { dracula } from '@uiw/codemirror-theme-dracula';
+import headImg from "./assets/Head.png"
+import AppHeader from './AppHeader';
 
 
 export default function App() {
@@ -10,6 +12,7 @@ export default function App() {
   const [mermaidCode, setMermaidCode] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
+  console.log(headImg)
   
   
   const toggleDarkMode = () => {
@@ -54,7 +57,6 @@ export default function App() {
       setMermaidCode(data.code);
     } catch (error) {
       console.error('Error:', error);
-      // Handle error (e.g., show an error message to the user)
     } finally {
       setIsLoading(false);
     }
@@ -63,12 +65,11 @@ export default function App() {
   return (
     <div style={appStyle}>
       <div style={containerStyle}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}> 
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>CodeVis: Code to Mermaid Chart</h1>
-        <button onClick={toggleDarkMode} style={{ ...buttonStyle, padding: '5px 10px' }}>
-            {darkMode ? '☀️' : '🌙'}
-          </button>
-      </div>
+      <AppHeader 
+        headImg={headImg}
+        darkMode={darkMode}
+        toggleDarkMode={toggleDarkMode}
+      />
       <div style={{ marginBottom: '20px' }}>
         <CodeMirror
             value={sourceCode}
@@ -81,13 +82,12 @@ export default function App() {
       <button 
         onClick={handleSubmit} 
         disabled={isLoading}
-        style={buttonStyle}
+        style={{...buttonStyle, fontSize: '1em'}}
       >
         {isLoading ? 'Converting...' : 'Convert to Mermaid'}
       </button>
       {mermaidCode && (
         <div style={{ marginTop: '20px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px' }}>Generated Mermaid Chart</h2>
           <div className="mermaid">
             <Chart chartCode={mermaidCode} darkMode={darkMode}/>
           </div>
