@@ -1,7 +1,0 @@
-services:
-  server:
-    build: ./server
-    ports:
-      - "8080:8000"
-    volumes:
-      - ./server/logs:/app/logs
