@@ -46,3 +46,4 @@ typing_extensions==4.12.2
 urllib3==2.2.3
 Werkzeug==3.0.4
 yarl==1.13.1
+flask_cors==5.0.0

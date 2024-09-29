@@ -9,25 +9,11 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY . /app
 
-ENTRYPOINT ["flask"]
-CMD ["run"]
-
 ENV FLASK_ENV=development
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0  
 ENV FLASK_RUN_PORT=8000
 
 
-FROM builder as dev-envs
-
-RUN <<EOF
-apk update
-apk add git
-EOF
-
-RUN <<EOF
-addgroup -S docker
-adduser -S --shell /bin/bash --ingroup docker vscode
-EOF
-# install Docker tools (cli, buildx, compose)
-COPY --from=gloursdocker/docker / /
+ENTRYPOINT ["flask"]
+CMD ["run"]
