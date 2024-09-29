@@ -41,13 +41,34 @@ export default function App() {
   };
 
   const selectStyle = {
-    padding: '10px',
-    marginBottom: '10px',
+    appearance: 'none',
     backgroundColor: darkMode ? '#333' : '#fff',
-    color: darkMode ? '#fff' : '#000',
     border: `1px solid ${darkMode ? '#555' : '#ccc'}`,
     borderRadius: '5px',
-    fontSize: '1em',
+    color: darkMode ? '#fff' : '#000',
+    cursor: 'pointer',
+    fontSize: '16px',
+    padding: '10px 35px 10px 15px',
+    transition: 'all 0.3s ease',
+    width: '100%',
+  };
+  const selectArrowStyle = {
+    borderLeft: `5px solid transparent`,
+    borderRight: `5px solid transparent`,
+    borderTop: `5px solid ${darkMode ? '#fff' : '#000'}`,
+    content: '""',
+    height: 0,
+    position: 'absolute',
+    right: '15px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    width: 0,
+    pointerEvents: 'none',
+  };
+  const selectContainerStyle = {
+    position: 'relative',
+    display: 'inline-block',
+    marginBottom: '20px',
   };
 
   const handleSubmit = async () => {
@@ -81,7 +102,7 @@ export default function App() {
           darkMode={darkMode}
           toggleDarkMode={toggleDarkMode}
         />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+        <div style={selectContainerStyle}>
           <select 
             value={chartType} 
             onChange={(e) => setChartType(e.target.value)}
@@ -91,6 +112,7 @@ export default function App() {
             <option value="sequenceDiagram">Sequence Diagram</option>
             <option value="classDiagram">Class Diagram</option>
           </select>
+          <div style={selectArrowStyle}></div>
         </div>
         <div style={{ marginBottom: '20px' }}>
           <CodeMirror
