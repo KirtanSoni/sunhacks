@@ -54,7 +54,7 @@ class LLM:
         sys = SystemMessagePromptTemplate(prompt=prompt)
         message = [sys.format(code=code)]
         reply = self.llm.invoke(input=message).dict()['content']
-        reply = self.extract_code(reply)
+        reply = self.sanitize_code(reply)
         return reply
     
     def extract_code(self,gpt_response):
@@ -71,50 +71,60 @@ class LLM:
         return code
     
 
+llm = LLM()
+code = """def hello_world():
+    print('Hello World')"""
 
-app = flask.Flask(__name__)
-CORS(app)
+psuedo = llm.generate_psudo_code(code)
+print(psuedo)
+daiagram = 'flowchart'
+response = llm.generate_mermaid_chart(psuedo,daiagram)
+print(response)
 
 
-@app.route('/')
-def index():
-    json = {
-        'code': """flowchart TD
-    Start --> HelloWorld[Hello World]
-    HelloWorld --> Finish""" 
-    }
-    return json
+# app = flask.Flask(__name__)
+# CORS(app)
 
-# generate_mermaid_chart
-@app.route('/generated_direct', methods=['POST'])
-def generate_mermaid_chart():
-    data = flask.request.json
-    code = data['code']
-    daiagram = data['daiagram']
-    llm = LLM()
-    response = llm.generate_mermaid_chart(code,daiagram)
-    json = {
-        'code': response
-    }
-    return json
 
-@app.route('/generate', methods=['POST'])
-def generate():
-    data = flask.request.json
-    code = data['code']
-    diagram = data['diagram']
+# @app.route('/')
+# def index():
+#     json = {
+#         'code': """flowchart TD
+#     Start --> HelloWorld[Hello World]
+#     HelloWorld --> Finish""" 
+#     }
+#     return json
 
-    llm = LLM()
-    psuedo = llm.generate_psudo_code(code)
-    response = llm.generate_mermaid_chart(psuedo,diagram)
-    json = {
-        'code': response
-    }
-    return json
+# # generate_mermaid_chart
+# @app.route('/generated_direct', methods=['POST'])
+# def generate_mermaid_chart():
+#     data = flask.request.json
+#     code = data['code']
+#     daiagram = data['daiagram']
+#     llm = LLM()
+#     response = llm.generate_mermaid_chart(code,daiagram)
+#     json = {
+#         'code': response
+#     }
+#     return json
 
-# run in development mode with reloader
-if __name__ == '__main__':
-    app.run(debug=True)
+# @app.route('/generate', methods=['POST'])
+# def generate():
+#     data = flask.request.json
+#     code = data['code']
+#     diagram = data['diagram']
+
+#     llm = LLM()
+#     psuedo = llm.generate_psudo_code(code)
+#     response = llm.generate_mermaid_chart(psuedo,diagram)
+#     json = {
+#         'code': response
+#     }
+#     return json
+
+# # run in development mode with reloader
+# if __name__ == '__main__':
+#     app.run(debug=True)
 
 
 
